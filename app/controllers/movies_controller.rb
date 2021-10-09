@@ -10,12 +10,17 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.all_ratings
     @ratings_to_show = []
     @ordering_param = ''
-#     session[:ratings] = params[:ratings] unless params[:ratings].nil?
-#     session[:order] = params[:order] unless params[:order].nil?
-#     logger.debug(session[:ratings])
-#     logger.debug(session[:order])
+    session[:ratings] = params[:ratings] unless params[:ratings].nil?
+    session[:order] = params[:order] unless params[:order].nil?
+    if params[:order].nil? && params[:ratings].nil? &&
+        (!session[:order].nil? || !session[:ratings].nil?)
+      redirect_to movies_path(:order => session[:order], :ratings => session[:ratings])
+    end
+    logger.debug(session[:ratings])
+    logger.debug(session[:order])
     if params[:order]
       @movies = Movie.order(params[:order])
+      #@movies = Movie.order(session[:order])
       @ordering_param = params[:order]
     end
 
@@ -23,15 +28,17 @@ class MoviesController < ApplicationController
       @ratings_to_show = params[:ratings].keys
 
       @movies = Movie.where(Rating: @ratings_to_show )
+      #@movies = Movie.where(Rating: session[:ratings].keys )
     end
     if params[:order] && params[:ratings]
       logger.debug("Both exist!")
       @movies = Movie.where(Rating: @ratings_to_show).order(params[:order])
+      #@movies = Movie.where(Rating: session[:ratings].keys).order(session[:order])
     end
-    logger.debug("rating")
-    logger.debug(@ratings_to_show)
-    logger.debug("order")
-    logger.debug(params[:order])
+#     logger.debug("rating")
+#     logger.debug(@ratings_to_show)
+#     logger.debug("order")
+#     logger.debug(params[:order])
       
 #     if session[:ratings] != nil && session[:order] != nil
 #       logger.debug("Both of them not null!")
